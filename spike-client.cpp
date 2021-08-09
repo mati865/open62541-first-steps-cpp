@@ -12,7 +12,8 @@
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 5700000;
+constexpr auto VAR_COUNT = 6000000;
+// constexpr auto VAR_COUNT = 1000;
 
 static long long
 current_timestamp_in_us(void) {

@@ -11,7 +11,8 @@
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 5700000;
+constexpr auto VAR_COUNT = 6000000;
+// constexpr auto VAR_COUNT = 1000;
 
 char *leak_memory(std::string src) {
     auto ptr = new char[src.size() + 1]{};
@@ -48,26 +49,43 @@ addVariable(UA_Server *server, int index) {
                               attr, NULL, NULL);
 }
 
-static void
-addVariableFromExample(UA_Server *server) {
-    /* Define the attribute of the myInteger variable node */
-    UA_VariableAttributes attr = UA_VariableAttributes_default;
-    UA_Int32 myInteger = 95;
-    UA_Variant_setScalar(&attr.value, &myInteger, &UA_TYPES[UA_TYPES_INT32]);
-    attr.description = UA_LOCALIZEDTEXT("en-US","pump fuel level");
-    attr.displayName = UA_LOCALIZEDTEXT("en-US","pump fuel level");
-    attr.dataType = UA_TYPES[UA_TYPES_INT32].typeId;
-    attr.accessLevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE;
+// // TODO: implement this
+// static int32_t data_source = 0;
 
-    /* Add the variable node to the information model */
-    UA_NodeId myIntegerNodeId = UA_NODEID_STRING(1, leak_memory(get_node_id_name(35)));
-    UA_QualifiedName myIntegerName = UA_QUALIFIEDNAME(1, "pump fuel level");
+static UA_StatusCode
+readCurrentTime(UA_Server *server,
+                const UA_NodeId *sessionId, void *sessionContext,
+                const UA_NodeId *nodeId, void *nodeContext,
+                UA_Boolean sourceTimeStamp, const UA_NumericRange *range,
+                UA_DataValue *dataValue) {
+    UA_DateTime now = UA_DateTime_now();
+    UA_Variant_setScalarCopy(&dataValue->value, &now,
+                             &UA_TYPES[UA_TYPES_DATETIME]);
+    dataValue->hasValue = true;
+    return UA_STATUSCODE_GOOD;
+}
+
+static void
+addVariableFromExample(UA_Server *server, int index) {
+    UA_VariableAttributes attr = UA_VariableAttributes_default;
+    attr.displayName = UA_LOCALIZEDTEXT("en-US", leak_memory(get_var_name(index)));
+    attr.description = UA_LOCALIZEDTEXT("en-US", leak_memory(get_var_name(index)));
+    // attr.dataType = UA_TYPES[UA_TYPES_INT32].typeId;
+    attr.accessLevel = UA_ACCESSLEVELMASK_READ;
+
+    const UA_NodeId currentNodeId = UA_NODEID_STRING(1, leak_memory(get_node_id_name(index)));
+    const UA_QualifiedName currentName = UA_QUALIFIEDNAME(1, leak_memory(get_var_name(index)));
     UA_NodeId parentNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER);
-    UA_NodeId parentReferenceNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES);
+    UA_NodeId parentReferenceNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES); 
     UA_NodeId variableTypeNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE);
-    UA_Server_addVariableNode(server, myIntegerNodeId, parentNodeId,
-                              parentReferenceNodeId, myIntegerName, variableTypeNodeId,
-                              attr, NULL, NULL);
+
+    UA_DataSource timeDataSource;
+    timeDataSource.read = readCurrentTime;
+    timeDataSource.write = nullptr;
+    UA_Server_addDataSourceVariableNode(server, currentNodeId, parentNodeId,
+                                        parentReferenceNodeId, currentName,
+                                        variableTypeNodeId, attr,
+                                        timeDataSource, NULL, NULL);
 }
 
 static volatile UA_Boolean running = true;
@@ -87,10 +105,9 @@ int main(void)
     UA_ServerConfig_setDefault(UA_Server_getConfig(server));
 
     for (int i = 0; i < VAR_COUNT; i++) {
-        addVariable(server, i);
+        // addVariable(server, i);
+        addVariableFromExample(server, i);
     }
-
-    // addVariableFromExample(server);
 
     UA_StatusCode retval = UA_Server_run(server, &running);
 
