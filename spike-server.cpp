@@ -1,7 +1,7 @@
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information. */
 
-// g++ spike-server.cpp -Lprecompiled -lopen62541 -o spike-server
+// g++ -O3 spike-server.cpp -Lprecompiled -lopen62541 -o spike-server
 
 #include "precompiled/open62541.h"
 #include <signal.h>
@@ -11,7 +11,7 @@
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 1000;
+constexpr auto VAR_COUNT = 5700000;
 
 char *leak_memory(std::string src) {
     auto ptr = new char[src.size() + 1]{};

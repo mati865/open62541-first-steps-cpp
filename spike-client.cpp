@@ -1,7 +1,7 @@
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information. */
 
-// g++ spike-client.cpp -Lprecompiled -lopen62541 -o spike-client
+// g++ -O3 spike-client.cpp -Lprecompiled -lopen62541 -o spike-client
 
 #include "precompiled/open62541.h"
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 1000;
+constexpr auto VAR_COUNT = 5700000;
 
 static long long
 current_timestamp_in_us(void) {
@@ -78,19 +78,16 @@ read_variables(UA_Client *client, void *out) {
         return retval;
     }
 
-    /* Set the StatusCode */
     UA_DataValue *res = response.results;
     if(res->hasStatus)
         retval = res->status;
 
-    /* Return early of no value is given */
     if(!res->hasValue) {
         retval = UA_STATUSCODE_BADUNEXPECTEDERROR;
         UA_ReadResponse_clear(&response);
         return retval;
     }
 
-    /* Copy value into out */
     memcpy(out, &res->value, sizeof(UA_Variant));
     UA_Variant_init(&res->value);
     
@@ -121,33 +118,9 @@ main(void) {
         }
         long long before_ts = current_timestamp_in_us();
 
-        //  /* Read attribute */
-        // UA_Int32 value = 0;
-        // printf("\nReading the value of node (1, \"nodeid35\"):\n");
-        // UA_Variant *val = UA_Variant_new();
-        // retval = UA_Client_readValueAttribute(client, UA_NODEID_STRING(1, "nodeid35"), val);
-        // if(retval == UA_STATUSCODE_GOOD && UA_Variant_isScalar(val) &&
-        // val->type == &UA_TYPES[UA_TYPES_INT32]) {
-        //         // value = *(UA_Int32*)val->data;
-        //         printf("the value is: %i\n", value);
-        // }
-        // UA_Variant_delete(val);
-
-
         UA_Variant value;
         UA_Variant_init(&value);
         retval = read_variables(client, &value);
-
-        // if(retval == UA_STATUSCODE_GOOD &&
-        //    UA_Variant_hasScalarType(&value, &UA_TYPES[UA_TYPES_DATETIME])) {
-        //     UA_DateTime raw_date = *(UA_DateTime *)value.data;
-        //     UA_DateTimeStruct dts = UA_DateTime_toStruct(raw_date);
-        //     (void)dts;
-        //     processed_requests += 1;
-        //     UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
-        //                 "date is: %u-%u-%u %u:%u:%u.%03u\n", dts.day, dts.month,
-        //                 dts.year, dts.hour, dts.min, dts.sec, dts.milliSec);
-        // }
 
         if(retval == UA_STATUSCODE_GOOD) {
             processed_requests += 1;
