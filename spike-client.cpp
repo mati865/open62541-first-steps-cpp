@@ -12,8 +12,7 @@
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 6000000;
-// constexpr auto VAR_COUNT = 1000;
+constexpr auto VAR_COUNT = 2000;
 
 static long long
 current_timestamp_in_us(void) {
@@ -100,6 +99,7 @@ int
 main(void) {
     init_node_ids();
 
+    auto program_start = current_timestamp_in_us();
     UA_Client *client = UA_Client_new();
     UA_ClientConfig_setDefault(UA_Client_getConfig(client));
     UA_StatusCode retval = UA_Client_connect(client, "opc.tcp://localhost:4840");
@@ -110,9 +110,10 @@ main(void) {
 
     constexpr auto ONE_SECOND = 1'000'000;
     constexpr auto pumpFuelLevelONDS = 10 * ONE_SECOND;
-    const long long EXECUTION_TIME = ONE_SECOND;
+    const long long EXECUTION_TIME = ONE_SECOND / 10;
     long long requests_start = current_timestamp_in_us();
     long long processed_requests = 0;
+    auto ts_before_requests = current_timestamp_in_us();
     while(true) {
         if((current_timestamp_in_us() - requests_start) > EXECUTION_TIME) {
             break;
@@ -131,9 +132,9 @@ main(void) {
 
         // UA_sleep_ms(100);
 
-        printf("Request took %lldus\n", current_timestamp_in_us() - before_ts);
+        // printf("Request took %lldus\n", current_timestamp_in_us() - before_ts);
     }
-    printf("Processed %lld requests and %lld Data Points in %lldus\n", processed_requests, processed_requests * VAR_COUNT, EXECUTION_TIME);
+    printf("TS: %lldms; Processed %lld requests and %lld Data Points in %lldms\n", current_timestamp_in_us() / 1000, processed_requests, processed_requests * VAR_COUNT, (current_timestamp_in_us() - ts_before_requests) / 1000);
     /* Clean up */
     UA_Client_delete(client); /* Disconnects the client internally */
     return EXIT_SUCCESS;

@@ -11,8 +11,7 @@
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 6000000;
-// constexpr auto VAR_COUNT = 1000;
+constexpr auto VAR_COUNT = 2000;
 
 char *leak_memory(std::string src) {
     auto ptr = new char[src.size() + 1]{};
@@ -33,10 +32,10 @@ addVariable(UA_Server *server, int index) {
     /* add a static variable node to the server */
     UA_VariableAttributes attr = UA_VariableAttributes_default;
     UA_Int32 myInteger = index;
-    UA_Variant_setScalar(&attr.value, &myInteger, &UA_TYPES[UA_TYPES_INT32]);
+    UA_Variant_setScalar(&attr.value, &myInteger, &UA_TYPES[UA_TYPES_DOUBLE]);
     attr.displayName = UA_LOCALIZEDTEXT("en-US", leak_memory(get_var_name(index)));
     attr.description = UA_LOCALIZEDTEXT("en-US", leak_memory(get_var_name(index)));
-    attr.dataType = UA_TYPES[UA_TYPES_INT32].typeId;
+    attr.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
     attr.accessLevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE;
 
     const UA_NodeId currentNodeId = UA_NODEID_STRING(1, leak_memory(get_node_id_name(index)));
@@ -70,7 +69,7 @@ addVariableFromExample(UA_Server *server, int index) {
     UA_VariableAttributes attr = UA_VariableAttributes_default;
     attr.displayName = UA_LOCALIZEDTEXT("en-US", leak_memory(get_var_name(index)));
     attr.description = UA_LOCALIZEDTEXT("en-US", leak_memory(get_var_name(index)));
-    // attr.dataType = UA_TYPES[UA_TYPES_INT32].typeId;
+    // attr.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
     attr.accessLevel = UA_ACCESSLEVELMASK_READ;
 
     const UA_NodeId currentNodeId = UA_NODEID_STRING(1, leak_memory(get_node_id_name(index)));
