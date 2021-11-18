@@ -8,7 +8,6 @@
 #include <sys/time.h>
 #include <vector>
 #include <string>
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 
@@ -26,7 +25,6 @@ current_timestamp_in_us(void) {
 
 char *leak_memory(std::string src)
 {
-    std::cout << src << std::endl;
     auto ptr = new char[src.size() + 1]{};
     mempcpy(ptr, src.c_str(), src.size());
     return ptr;
@@ -39,15 +37,14 @@ std::string get_var_name(int index) {
 std::string get_node_id_name(int index) {
     std::ostringstream ss;
     ss << std::setw(12) << std::setfill('0') << index;
-    return "00000000-0000-0000-0000-" + ss.str() +
-           "/actual/analog";
+    return "00000000-0000-0000-0000-"s + ss.str() +
+           "/actual/value"s;
 }
 
 auto get_namespace(UA_Client *client) {
     uint16_t namespace_index;
     auto namespace_name = UA_STRING("urn:wams-opc-ua");
     UA_Client_NamespaceGetIndex(client, &namespace_name, &namespace_index);
-    std::cout << "namespace index:" << namespace_index << std::endl;
     return namespace_index;
 }
 
@@ -110,7 +107,7 @@ read_variables(UA_Client *client, void *out) {
     return retval;
 }
 
-int main(void) {
+int main(int argc, char** argv) {
     auto program_start = current_timestamp_in_us();
 
     UA_Client *client = UA_Client_new();
@@ -123,9 +120,12 @@ int main(void) {
 
     init_node_ids(client);
 
+    auto seconds_to_run = 1;
+    if (argc == 2)
+      seconds_to_run = std::stoi(argv[1]) * 10;
     constexpr auto ONE_SECOND = 1'000'000;
     constexpr auto pumpFuelLevelONDS = 10 * ONE_SECOND;
-    const long long EXECUTION_TIME = ONE_SECOND / 10;
+    const long long EXECUTION_TIME = seconds_to_run * ONE_SECOND / 10;
     long long requests_start = current_timestamp_in_us();
     long long processed_requests = 0;
     auto ts_before_requests = current_timestamp_in_us();
