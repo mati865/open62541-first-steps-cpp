@@ -1,0 +1,10 @@
+{"objectId":"00000000-0000-0000-0000-000000000001","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000002","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000003","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000004","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000005","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000006","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000007","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000008","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000009","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}
+{"objectId":"00000000-0000-0000-0000-000000000010","model":"actual","timestamp":"2021-11-27T10:00:00Z","telemetries":{"value":{"dataType":"number","streamId":{"idCode":1,"kind":"analog","index":0}}}}

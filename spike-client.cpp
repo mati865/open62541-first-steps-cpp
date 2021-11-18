@@ -8,11 +8,13 @@
 #include <sys/time.h>
 #include <vector>
 #include <string>
-
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 using namespace std::string_literals;
 
-constexpr auto VAR_COUNT = 2000;
+constexpr auto VAR_COUNT = 10;
 
 static long long
 current_timestamp_in_us(void) {
@@ -24,6 +26,7 @@ current_timestamp_in_us(void) {
 
 char *leak_memory(std::string src)
 {
+    std::cout << src << std::endl;
     auto ptr = new char[src.size() + 1]{};
     mempcpy(ptr, src.c_str(), src.size());
     return ptr;
@@ -34,13 +37,25 @@ std::string get_var_name(int index) {
 }
 
 std::string get_node_id_name(int index) {
-    return "nodeid"s + std::to_string(index);
+    std::ostringstream ss;
+    ss << std::setw(12) << std::setfill('0') << index;
+    return "00000000-0000-0000-0000-" + ss.str() +
+           "/actual/analog";
+}
+
+auto get_namespace(UA_Client *client) {
+    uint16_t namespace_index;
+    auto namespace_name = UA_STRING("urn:wams-opc-ua");
+    UA_Client_NamespaceGetIndex(client, &namespace_name, &namespace_index);
+    std::cout << "namespace index:" << namespace_index << std::endl;
+    return namespace_index;
 }
 
 std::vector<UA_NodeId> NODE_IDS{};
-void init_node_ids() {
+void init_node_ids(UA_Client *client) {
+    auto namespace_index = get_namespace(client);
     for (auto i = 0; i < VAR_COUNT; i++) {
-        NODE_IDS.push_back(UA_NODEID_STRING(1, leak_memory(get_node_id_name(i))));
+        NODE_IDS.push_back(UA_NODEID_STRING(namespace_index, leak_memory(get_node_id_name(i+1))));
     }
 }
 
@@ -90,16 +105,14 @@ read_variables(UA_Client *client, void *out) {
 
     memcpy(out, &res->value, sizeof(UA_Variant));
     UA_Variant_init(&res->value);
-    
+
     UA_ReadResponse_clear(&response);
     return retval;
 }
 
-int
-main(void) {
-    init_node_ids();
-
+int main(void) {
     auto program_start = current_timestamp_in_us();
+
     UA_Client *client = UA_Client_new();
     UA_ClientConfig_setDefault(UA_Client_getConfig(client));
     UA_StatusCode retval = UA_Client_connect(client, "opc.tcp://localhost:4840");
@@ -107,6 +120,8 @@ main(void) {
         UA_Client_delete(client);
         return (int)retval;
     }
+
+    init_node_ids(client);
 
     constexpr auto ONE_SECOND = 1'000'000;
     constexpr auto pumpFuelLevelONDS = 10 * ONE_SECOND;
