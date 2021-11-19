@@ -22,7 +22,7 @@ curl --request POST \
 --url http://localhost:8888/start \
 --header 'Content-Type: application/json' \
 --data '{
-"no_of_datapoints": 10,
+"no_of_datapoints": 11,
 "frequency": 10,
 "model": "actual",
 "telemetry": "value"
